@@ -1,6 +1,6 @@
 import styled from '@emotion/native';
 
-const PageTitleContainer = styled.View`
+export const PageTitleContainer = styled.View`
      padding: ${({ theme }) => theme.spacing(5) + ' ' + 0};
 `;
 
