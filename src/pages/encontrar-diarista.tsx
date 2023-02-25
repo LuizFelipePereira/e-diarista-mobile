@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTheme } from '@emotion/react';
 import { ScrollView } from 'react-native';
 import PageTitle from '../../ui/components/data-display/PageTitle/PageTitle';
@@ -13,27 +13,36 @@ import {
      ResponseContainer,
 } from '../../ui/styles/pages/encontrar-diarista.styled';
 import useIndex from '../data/hooks/pages/useIndex.page';
+import useEncontrarDiarista from '../data/hooks/pages/useEncontrarDiarista.page.mobile';
 
 const EncontrarDiarista: React.FC = () => {
      const { colors } = useTheme();
      const {
-          cep,
-          setCep,
-          cepValido,
-          buscarProfissionais,
-          erro,
-          diaristas,
-          buscaFeita,
-          carregando,
-          diaristasRestantes,
-     } = useIndex();
+               cep,
+               setCep,
+               cepValido,
+               buscarProfissionais,
+               erro,
+               diaristas,
+               buscaFeita,
+               carregando,
+               diaristasRestantes,
+          } = useIndex(),
+          { cepAutomatico } = useEncontrarDiarista();
+
+     useEffect(() => {
+          if (cepAutomatico && !cep) {
+               setCep(cepAutomatico);
+               buscarProfissionais(cepAutomatico);
+          }
+     }, [cepAutomatico]);
 
      return (
           <ScrollView>
                <PageTitle
                     title={'Conheça os profissionais'}
                     subtitle={
-                         'Preencha seu endereço e veja todos os profissionais da sua região/'
+                         'Preencha seu endereço e veja todos os profissionais da sua região'
                     }
                />
 
@@ -68,23 +77,27 @@ const EncontrarDiarista: React.FC = () => {
                {buscaFeita &&
                     (diaristas.length > 0 ? (
                          <ResponseContainer>
-                              <UserInformation
-                                   name={'Luiz Felipe'}
-                                   rating={3}
-                                   picture="https://github.com/LuizFelipePereira.png"
-                                   description={'São Paulo'}
-                              />
+                              {diaristas.map((item, index) => (
+                                   <UserInformation
+                                        key={index}
+                                        name={item.nome_completo}
+                                        rating={item.reputacao || 0}
+                                        picture={item.foto_usuario || ''}
+                                        description={item.cidade}
+                                        darker={index % 2 === 1}
+                                   />
+                              ))}
                               {diaristasRestantes > 0 && (
                                    <TextContainer>
                                         ...e mais {diaristasRestantes}{' '}
                                         {diaristasRestantes > 1
                                              ? 'profissionais atendem'
-                                             : 'profisisonal atende'}{' '}
+                                             : 'profissional atende'}{' '}
                                         ao seu endereço.
                                    </TextContainer>
                               )}
 
-                              <Button mode={'contained'} color={colors.accent}>
+                              <Button color={colors.accent} mode={'contained'}>
                                    Contratar um profissional
                               </Button>
                          </ResponseContainer>
